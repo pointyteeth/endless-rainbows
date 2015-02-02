@@ -20,7 +20,7 @@ public class PlayerControl : MonoBehaviour {
         
         // Jumping
         if(Input.GetButtonDown("Jump") && jumpCounter < 3) {
-            rigidbody.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
+            rigidbody2D.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
             jumpCounter++;
 		}
 	}

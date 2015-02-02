@@ -16,5 +16,7 @@ public class CameraFollow : MonoBehaviour {
         Vector3 position = transform.position;
         position.y = 0f + offset;
         transform.position = position;
+        // Maintain rotation
+        transform.rotation = Quaternion.identity;
 	}
 }
