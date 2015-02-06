@@ -115,7 +115,8 @@ public class TileManager : MonoBehaviour {
         SpriteRenderer renderer = tile.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
         if(tile.name != "blank") {
-            BoxCollider2D collider = tile.AddComponent<BoxCollider2D>();
+            //BoxCollider2D collider = tile.AddComponent<BoxCollider2D>();
+            PolygonCollider2D collider = tile.AddComponent<PolygonCollider2D>();
         }
         tile.transform.position = position;
         tiles.Add(tile);

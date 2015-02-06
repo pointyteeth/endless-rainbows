@@ -10,7 +10,7 @@ public class PlayerControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
-	
+        rigidbody2D.fixedAngle = true;
 	}
 	
 	// Update is called once per frame
