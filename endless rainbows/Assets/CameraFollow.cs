@@ -3,20 +3,21 @@ using System.Collections;
 
 public class CameraFollow : MonoBehaviour {
 
-    float offset;
+    public GameObject player;
 
 	// Use this for initialization
 	void Start () {
-        offset = transform.position.y;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        // Maintain y-axis
+        // Smooth y-axis and follow x-axis
         Vector3 position = transform.position;
-        position.y = 0f + offset;
+        position.x = player.transform.position.x;
+        //position.y = player.transform.position.y;
         transform.position = position;
+        
         // Maintain rotation
-        transform.rotation = Quaternion.identity;
+        //transform.rotation = Quaternion.identity;
 	}
 }
