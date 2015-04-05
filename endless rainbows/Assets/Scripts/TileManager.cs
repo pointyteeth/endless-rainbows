@@ -47,7 +47,8 @@ public class TileManager : MonoBehaviour {
             }},
             {"diagonal_down_corner", new SortedDictionary<double, Sprite[]> {
                 {0.8, flat},
-                {0.1, diagonalDown}
+                {0.1, diagonalDown},
+                {0.2, verticalDown}
             }},
             {"vertical_up", new SortedDictionary<double, Sprite[]> {
                 {1.0, flat}
@@ -55,7 +56,7 @@ public class TileManager : MonoBehaviour {
             {"vertical_down", new SortedDictionary<double, Sprite[]> {
             }}
         };
-        aboveDistributions = new Dictionary<string, SortedDictionary<double, Sprite[]>> {
+        /*aboveDistributions = new Dictionary<string, SortedDictionary<double, Sprite[]>> {
             {"blank", new SortedDictionary<double, Sprite[]> {
             }},
             {"flat", new SortedDictionary<double, Sprite[]> {
@@ -66,7 +67,7 @@ public class TileManager : MonoBehaviour {
             }},
             {"vertical_down", new SortedDictionary<double, Sprite[]> {
             }}
-        };
+        };*/
         belowDistributions = new Dictionary<string, SortedDictionary<double, Sprite[]>> {
             {"blank", new SortedDictionary<double, Sprite[]> {
             }},
@@ -100,7 +101,7 @@ public class TileManager : MonoBehaviour {
         nextPosition = startPosition;
         nextTile = InstantiateTile(flat[0], nextPosition);
         for(int i = 0; i < numberOfTilesX; i++) {
-            newColumn();
+            MakeNewColumn();
 		}
 	}
 	
@@ -114,12 +115,12 @@ public class TileManager : MonoBehaviour {
             }
         }
         if(Camera.main.WorldToViewportPoint(nextTile.transform.position).x < spawnBuffer) {
-            newColumn();
+            MakeNewColumn();
 		}
 	}
     
     // Generate a new column of tiles
-    void newColumn() {
+    void MakeNewColumn() {
         nextPosition.x += 2;
         nextTile = InstantiateTile(TileFromDistribution(afterDistributions[nextTile.name]), nextPosition);
         nextColumnTile = nextTile;
@@ -148,8 +149,8 @@ public class TileManager : MonoBehaviour {
         SpriteRenderer renderer = tile.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
         if(tile.name != "blank") {
-            BoxCollider2D collider = tile.AddComponent<BoxCollider2D>();
-            //PolygonCollider2D collider = tile.AddComponent<PolygonCollider2D>();
+            tile.AddComponent<BoxCollider2D>();
+            //tile.AddComponent<PolygonCollider2D>();
             //collider.sharedMaterial = physicsMaterial;
         }
         tiles.Add(tile);
@@ -160,7 +161,9 @@ public class TileManager : MonoBehaviour {
     string CleanSpriteName(string name) {
         if(name.Contains("_")) {
             name = name.Substring(name.IndexOf("_") + 1);
-            name = name.Substring(0, name.LastIndexOf("_"));
+            if(name.Contains("_")) {
+                name = name.Substring(0, name.LastIndexOf("_"));
+            }
         }
         if(name.Contains("(")) {
             name = name.Substring(0, name.LastIndexOf("(") - 1);
@@ -182,28 +185,41 @@ public class TileManager : MonoBehaviour {
     }
     
     public Sprite[] foods;
+    public Sprite[] items;
     private bool wasFood = false;
     public int maxFoodElevation;
     public float startFoodStringChance;
     public float continueFoodStringChance;
+    public float itemChance;
     
     // Add a food to the foreground based on the previous food
+    // Possibly add an item instead
     void AddFood(Vector3 position) {
         if((!wasFood && Random.value < startFoodStringChance) || (wasFood && Random.value < continueFoodStringChance)) {
             wasFood = true;
             
-            int number = Random.Range(0, foods.Length);
-            Sprite sprite = foods[number];
             int height = Random.Range(2, 2 + maxFoodElevation);
-            GameObject food = new GameObject(CleanSpriteName(sprite.ToString()));
+            GameObject item = new GameObject();
             position.y += height;
-            food.transform.position = position;
-            SpriteRenderer renderer = food.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            BoxCollider2D collider = food.AddComponent<BoxCollider2D>();
+            item.transform.position = position;
+            BoxCollider2D collider = item.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
-            Food script = food.AddComponent<Food>();
-            script.PointValue = 100*(number + 1);
+            item.AddComponent<Item>();
+            
+            Sprite sprite;
+            if(Random.value > itemChance) { // place food
+                int number = (int) (Mathf.Pow(Random.value, 2)*foods.Length);
+                sprite = foods[number];
+                Food foodScript = item.AddComponent<Food>();
+                foodScript.PointValue = 100*(number + 1);
+                Rigidbody2D rigidbody = item.AddComponent<Rigidbody2D>();
+                foodScript.rigidbody = rigidbody;
+            } else { // place item
+                sprite = items[Random.Range(0, items.Length)];
+            }
+            item.name = CleanSpriteName(sprite.ToString());
+            SpriteRenderer renderer = item.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
             
         } else {
             wasFood = false;

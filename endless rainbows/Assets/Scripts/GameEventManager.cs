@@ -6,9 +6,12 @@ public static class GameEventManager {
 	public delegate void GameEvent();
     public static event GameEvent GameStart, GameOver;
     
-    public delegate void ScoreEvent(int value);
+    public delegate void ScoreEvent(int total, int value, Vector3 position);
     public static event ScoreEvent UpdatePoints;
     static int points = 0;
+    
+    public delegate void ItemEvent(string name);
+    public static event ItemEvent StartItem;
     
     public delegate void SceneEvent(Vector3 position);
     public static event SceneEvent NewColumn;
@@ -25,15 +28,23 @@ public static class GameEventManager {
 		}
 	}
     
-    public static void AddPoints(int value){
+    public static void AddPoints(int value, Vector3 position){
 		points += value;
         if(UpdatePoints != null) {
-            UpdatePoints(points);
+            UpdatePoints(points, value, position);
         }
 	}
     
     public static void AddNewColumn(Vector3 position){
-		NewColumn(position);
+        if(NewColumn != null) {
+            NewColumn(position);
+        }
+	}
+    
+    public static void AddItem(string name){
+        if(StartItem != null) {
+            StartItem(name);
+        }
 	}
     
 }

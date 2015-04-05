@@ -3,6 +3,10 @@ using System.Collections;
 
 public class Food : MonoBehaviour {
 
+    public Rigidbody2D rigidbody;
+    float minY;
+    float maxY;
+
     private int pointValue;
     public int PointValue {
        get { return pointValue; }
@@ -11,12 +15,14 @@ public class Food : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+        maxY = transform.position.y;
+        minY = maxY - 0.01f;
 	}
 	
 	// Update is called once per frame
 	void Update() {
-        if(Camera.main.WorldToViewportPoint(this.transform.position).x < -0.2) {
-            Object.Destroy(gameObject);
+        if((transform.position.y < minY && rigidbody.gravityScale > 0) || (transform.position.y > maxY && rigidbody.gravityScale < 0)) {
+            rigidbody.gravityScale *= -1;
         }
 	}
 }
