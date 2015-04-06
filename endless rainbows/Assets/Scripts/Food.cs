@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Food : MonoBehaviour {
 
-    public Rigidbody2D rigidbody;
+    public Rigidbody2D rb;
     float minY;
     float maxY;
 
@@ -21,8 +21,8 @@ public class Food : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update() {
-        if((transform.position.y < minY && rigidbody.gravityScale > 0) || (transform.position.y > maxY && rigidbody.gravityScale < 0)) {
-            rigidbody.gravityScale *= -1;
+        if((transform.position.y < minY && rb.gravityScale > 0) || (transform.position.y > maxY && rb.gravityScale < 0)) {
+            rb.gravityScale *= -1;
         }
 	}
 }

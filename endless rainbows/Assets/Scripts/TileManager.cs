@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class TileManager : MonoBehaviour {
 
     public PhysicsMaterial2D physicsMaterial;
+    public GameObject player;
 
     public Sprite blank;
     public Sprite[] fill;
@@ -21,7 +22,7 @@ public class TileManager : MonoBehaviour {
     private Dictionary<string, SortedDictionary<double, Sprite[]>> belowDistributions;
     private List<string> deadEnds = new List<string>() {"diagonal_down"};
     
-    public Vector3 startPosition;
+    public float startDrop;
     public int numberOfTilesX;
     public int numberOfTilesY;
     public float spawnBuffer;
@@ -98,20 +99,24 @@ public class TileManager : MonoBehaviour {
         };
     
         tiles = new List<GameObject>();
-        nextPosition = startPosition;
-        nextTile = InstantiateTile(flat[0], nextPosition);
-        for(int i = 0; i < numberOfTilesX; i++) {
-            MakeNewColumn();
-		}
 	}
 	
 	// Update is called once per frame
 	void Update() {
         for(int i = 0; i < tiles.Count; i++) {
             GameObject tile = tiles[i];
-            if(Camera.main.WorldToViewportPoint(tile.transform.position).x < destroyBuffer) {
+            if(Camera.main.WorldToViewportPoint(tile.transform.position).x < destroyBuffer || Camera.main.WorldToViewportPoint(tile.transform.position).y > 2) {
                 Object.Destroy(tile);
                 tiles.Remove(tile);
+            }
+        }
+        if(nextTile == null) {
+            Vector3 position = player.transform.position;
+            position.x -= startDrop;
+            nextPosition = position;
+            nextTile = InstantiateTile(flat[0], nextPosition);
+            for(int i = 0; i < numberOfTilesX; i++) {
+                MakeNewColumn();
             }
         }
         if(Camera.main.WorldToViewportPoint(nextTile.transform.position).x < spawnBuffer) {
@@ -187,6 +192,7 @@ public class TileManager : MonoBehaviour {
     public Sprite[] foods;
     public Sprite[] items;
     private bool wasFood = false;
+    public int minFoodElevation;
     public int maxFoodElevation;
     public float startFoodStringChance;
     public float continueFoodStringChance;
@@ -198,7 +204,7 @@ public class TileManager : MonoBehaviour {
         if((!wasFood && Random.value < startFoodStringChance) || (wasFood && Random.value < continueFoodStringChance)) {
             wasFood = true;
             
-            int height = Random.Range(2, 2 + maxFoodElevation);
+            int height = Random.Range(2 + minFoodElevation, 2 + maxFoodElevation);
             GameObject item = new GameObject();
             position.y += height;
             item.transform.position = position;
@@ -213,7 +219,7 @@ public class TileManager : MonoBehaviour {
                 Food foodScript = item.AddComponent<Food>();
                 foodScript.PointValue = 100*(number + 1);
                 Rigidbody2D rigidbody = item.AddComponent<Rigidbody2D>();
-                foodScript.rigidbody = rigidbody;
+                foodScript.rb = rigidbody;
             } else { // place item
                 sprite = items[Random.Range(0, items.Length)];
             }

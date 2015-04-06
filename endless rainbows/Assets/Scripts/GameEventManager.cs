@@ -6,9 +6,9 @@ public static class GameEventManager {
 	public delegate void GameEvent();
     public static event GameEvent GameStart, GameOver;
     
-    public delegate void ScoreEvent(int total, int value, Vector3 position);
+    public delegate void ScoreEvent(long total, int value, Vector3 position);
     public static event ScoreEvent UpdatePoints;
-    static int points = 0;
+    public static long points = 0;
     
     public delegate void ItemEvent(string name);
     public static event ItemEvent StartItem;
@@ -32,6 +32,13 @@ public static class GameEventManager {
 		points += value;
         if(UpdatePoints != null) {
             UpdatePoints(points, value, position);
+        }
+	}
+    
+    public static void MultiplyPoints(long value){
+		points *= value;
+        if(UpdatePoints != null) {
+            UpdatePoints(points, (int) value, new Vector3(0, 0, 0));
         }
 	}
     
