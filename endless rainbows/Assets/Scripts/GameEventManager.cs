@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Cloud.Analytics;
 
 public static class GameEventManager {
 
@@ -46,6 +48,13 @@ public static class GameEventManager {
         if(NewColumn != null) {
             NewColumn(position);
         }
+	}
+    
+    public static void AddNewScene(){
+        UnityAnalytics.CustomEvent("Scene Change", new Dictionary<string, object> {
+            { "points", points },
+            //{ "distance", distance }
+        } );
 	}
     
     public static void AddItem(string name){

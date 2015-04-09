@@ -1,11 +1,19 @@
-Sets
+SETS
 Between scenes: photos and Putin stops smiling
 
     Grassy fields: HORSE
     Woods: AMUR TIGER
     Tundra: POLAR BEAR
     Starry Sky: SIBERIAN CRANE
+
     
+EVENTS
+Events to track
+    Special item collection
+    Scene changes
+    Game quit
+    Points at various times
+
 
 FOODS
 Just add points

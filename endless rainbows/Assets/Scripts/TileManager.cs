@@ -118,6 +118,7 @@ public class TileManager : MonoBehaviour {
             for(int i = 0; i < numberOfTilesX; i++) {
                 MakeNewColumn();
             }
+            GameEventManager.AddNewScene();
         }
         if(Camera.main.WorldToViewportPoint(nextTile.transform.position).x < spawnBuffer) {
             MakeNewColumn();
