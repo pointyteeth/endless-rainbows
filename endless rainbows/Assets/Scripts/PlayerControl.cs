@@ -37,7 +37,7 @@ public class PlayerControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update() {
         // Jumping
-        if(Input.GetButtonDown("Jump") && jumpCounter < 3) {
+        if((Input.GetButtonDown("Jump") || Input.touchCount > 0) && jumpCounter < 3) {
             rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
             jumpCounter++;
 		}

@@ -1,0 +1,75 @@
+Sets
+Between scenes: photos and Putin stops smiling
+
+    Grassy fields: HORSE
+    Woods: AMUR TIGER
+    Tundra: POLAR BEAR
+    Starry Sky: SIBERIAN CRANE
+    
+
+FOODS
+Just add points
+Bounce up and down
+
+    ice cream (various colors?)
+    peppermint bonbon
+    pie
+    cinnamon roll
+    donut
+    cupcake
+    rainbow banana split
+   
+   
+ITEMS
+Changes character appearance
+Affects points
+Indicated by
+    text
+    music
+    extra sparkles
+    screenspace effects
+Rotate back and forth
+    
+    aesthetic
+        sunglasses: You can't spell "badass" without "sunglasses".
+            Putin is now wearing shades.
+            no power
+        tie: A gentleman in the streets...
+            Putin is now wearing a shirt and tie
+            no power
+        handcuffs: Now you can get kinky with the opposition.
+            Putin is now wearing a leather harness
+            no power
+    points
+        dog: fear is just love spelled differently
+            dog logo expands
+            2x points multiplier
+        KGB badge: You never saw this.
+            KGB logo is stamped and expanded on score 
+            mysteriously but actually obviously get 3x points multiplier
+        heart: The loving populace gives you their hearts. And their votes.
+            heart logo expands
+            ^2 points exponential
+    points collection
+        octopus: Octopi Ukraine!
+            an octopus is placed on Putin's head like a hat
+            tentacles are extended and wave around, act as extra collider area to collect food
+        rifle: Time to hunt for cute photo ops.
+            get a rifle which automatically shoots sparkles
+            sparkles automatically get food
+        camera: Smile for the media!
+            camera flashes and putin grins even wider for a bit
+            collects all food onscreen
+    movement DO THESE AFTER FIXING ALL PHYSICS
+        can of sass: "You must obey the law, always, not only when they grab you by your special place."
+            Putin is now in a sassy pose on his mount, speed lines up when jumping
+            first jump is higher
+        judo belt: "The gentle way"
+            outfit is now judo outfit, speed lines up with first and second jump
+            first and second jumps are higher
+    screenspace
+        olympic medal: Gold medal in tolerating the gays!
+            rainbow screenspace filter
+        botox: ~*¤{ p r e t t y }¤*~
+            leave a flower trail and mount becomes a unicorn until you drop to another set
+            exclusive to fields after you've gone through all the other sets
