@@ -6,6 +6,9 @@ public class TileManager : MonoBehaviour {
 
     public PhysicsMaterial2D physicsMaterial;
     public GameObject player;
+    public GameObject tilesObject;
+    public GameObject foodObject;
+    public GameObject itemsObject;
 
     public Sprite blank;
     public Sprite[] fill;
@@ -23,7 +26,6 @@ public class TileManager : MonoBehaviour {
     private List<string> deadEnds = new List<string>() {"diagonal_down"};
     
     public float startDrop;
-    public int numberOfTilesX;
     public int numberOfTilesY;
     public float spawnBuffer;
     public float destroyBuffer;
@@ -31,13 +33,14 @@ public class TileManager : MonoBehaviour {
     private Vector3 nextColumnPosition;
     private GameObject nextTile;
     private GameObject nextColumnTile;
-    private List<GameObject> tiles;
+    private int gapLength = 0;
+    public int maxGap;
     
 	// Use this for initialization
 	void Start() {
         afterDistributions = new Dictionary<string, SortedDictionary<double, Sprite[]>> {
             {"blank", new SortedDictionary<double, Sprite[]> {
-                {1.0, verticalUp}
+                {0.4, verticalUp}
             }},
             {"flat", new SortedDictionary<double, Sprite[]> {
                 {0.7, flat},
@@ -97,42 +100,56 @@ public class TileManager : MonoBehaviour {
                 {1.0, verticalRight}
             }}
         };
-    
-        tiles = new List<GameObject>();
+        
 	}
 	
 	// Update is called once per frame
 	void Update() {
-        for(int i = 0; i < tiles.Count; i++) {
-            GameObject tile = tiles[i];
-            if(Camera.main.WorldToViewportPoint(tile.transform.position).x < destroyBuffer || Camera.main.WorldToViewportPoint(tile.transform.position).y > 2) {
-                Object.Destroy(tile);
-                tiles.Remove(tile);
+        if(GameEventManager.game) {
+            if(nextTile == null) {
+                if(!GameEventManager.firstScene) {
+                    GameEventManager.EndedScene();
+                }
+                Vector3 position = player.transform.position;
+                position.y -= startDrop;
+                position.x -= 10;
+                nextPosition = position;
+                nextTile = InstantiateTile(flat[0], nextPosition);
+                for(int i = 0; i < 20; i++) {
+                    MakeNewColumn(flat[Random.Range(0, flat.Length)]);
+                }
+                Invoke("MakeNewScene", 4);
+            }
+            else if(Camera.main.WorldToViewportPoint(nextTile.transform.position).x < spawnBuffer) {
+                MakeNewColumn(TileFromDistribution(afterDistributions[nextTile.name]));
             }
         }
-        if(nextTile == null) {
-            Vector3 position = player.transform.position;
-            position.x -= startDrop;
-            nextPosition = position;
-            nextTile = InstantiateTile(flat[0], nextPosition);
-            for(int i = 0; i < numberOfTilesX; i++) {
-                MakeNewColumn();
-            }
-            GameEventManager.AddNewScene();
-        }
-        if(Camera.main.WorldToViewportPoint(nextTile.transform.position).x < spawnBuffer) {
-            MakeNewColumn();
-		}
 	}
     
-    // Generate a new column of tiles
-    void MakeNewColumn() {
+    void MakeNewScene() {
+        if(GameEventManager.game) {
+            GameEventManager.AddedNewScene();
+        }
+    }
+    
+    // Generate a new column of tiles, starting with the given sprite
+    void MakeNewColumn(Sprite next) {
         nextPosition.x += 2;
-        nextTile = InstantiateTile(TileFromDistribution(afterDistributions[nextTile.name]), nextPosition);
+        if(next.name == "blank") {
+            if(gapLength == maxGap) {
+                next = verticalUp[0];
+                gapLength = 0;
+            } else {
+                gapLength++;
+            }
+        }
+        nextTile = InstantiateTile(next, nextPosition);
         nextColumnTile = nextTile;
         nextColumnPosition = nextPosition;
         AddFood(nextTile.transform.position);
-        GameEventManager.AddNewColumn(nextTile.transform.position);
+        if(nextTile.name != "blank") {
+            GameEventManager.AddNewColumn(nextTile.transform.position);
+        }
         for(int i = 0; i < numberOfTilesY; i++) {
             nextColumnPosition.y -= 2;
             nextColumnTile = InstantiateTile(TileFromDistribution(belowDistributions[nextColumnTile.name]), nextColumnPosition);
@@ -159,7 +176,8 @@ public class TileManager : MonoBehaviour {
             //tile.AddComponent<PolygonCollider2D>();
             //collider.sharedMaterial = physicsMaterial;
         }
-        tiles.Add(tile);
+        tile.AddComponent<Item>();
+        tile.transform.parent = tilesObject.transform;
         return tile;
     }
     
@@ -192,7 +210,7 @@ public class TileManager : MonoBehaviour {
     
     public Sprite[] foods;
     public Sprite[] items;
-    private bool wasFood = false;
+    bool wasFood = false;
     public int minFoodElevation;
     public int maxFoodElevation;
     public float startFoodStringChance;
@@ -221,8 +239,10 @@ public class TileManager : MonoBehaviour {
                 foodScript.PointValue = 100*(number + 1);
                 Rigidbody2D rigidbody = item.AddComponent<Rigidbody2D>();
                 foodScript.rb = rigidbody;
+                item.transform.parent = foodObject.transform;
             } else { // place item
                 sprite = items[Random.Range(0, items.Length)];
+                item.transform.parent = itemsObject.transform;
             }
             item.name = CleanSpriteName(sprite.ToString());
             SpriteRenderer renderer = item.AddComponent<SpriteRenderer>();

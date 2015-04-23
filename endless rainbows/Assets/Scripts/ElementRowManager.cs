@@ -4,12 +4,14 @@ using System.Collections.Generic;
 
 public class ElementRowManager : MonoBehaviour {
     
-    private List<GameObject> tiles;
-    
     public Sprite[] elements;
     private bool wasElement = false;
     private float previousElementHeight = 4f;
     public float depth;
+    public float minScale;
+    public int spriteOrder;
+    public bool overlap;
+    bool even = true;
     public float maxDepthVariation;
     public float minElementElevation;
     public float maxElementElevation;
@@ -19,19 +21,11 @@ public class ElementRowManager : MonoBehaviour {
     
 	// Use this for initialization
 	void Start() {
-        tiles = new List<GameObject>();
         GameEventManager.NewColumn += NewColumn;
 	}
 	
 	// Update is called once per frame
 	void Update() {
-        for(int i = 0; i < tiles.Count; i++) {
-            GameObject tile = tiles[i];
-            if(Camera.main.WorldToViewportPoint(tile.transform.position).x < -0.2) {
-                Object.Destroy(tile);
-                tiles.Remove(tile);
-            }
-        }
 	}
     
     // Add Element to the foreground based on the previous Element
@@ -42,19 +36,27 @@ public class ElementRowManager : MonoBehaviour {
             Sprite sprite = elements[Random.Range(0, elements.Length)];
             GameObject element = new GameObject(sprite.ToString());
             element.transform.parent = this.transform;
-            tiles.Add(element);
+            element.AddComponent<Item>();
             float height = Mathf.Clamp(Random.Range(-maxElementDistance, maxElementDistance) + previousElementHeight, minElementElevation, maxElementElevation);
             position.y += height;
             position.z = depth + Random.Range(-maxDepthVariation, maxDepthVariation);
             previousElementHeight = height;
             element.transform.position = position;
-            element.transform.localScale *= depth/5f;
+            element.transform.localScale *= Random.Range(minScale, 1) * Mathf.Max(depth/4f, 1f);
             SpriteRenderer renderer = element.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
+            renderer.sortingOrder = spriteOrder;
+            if(overlap) {
+                if(even) {
+                    renderer.sortingOrder += 1;
+                }
+                even = !even;
+            }
             
         } else {
             wasElement = false;
             previousElementHeight = Random.Range(minElementElevation, maxElementElevation);
         }
     }
+    
 }

@@ -7,6 +7,7 @@ public static class GameEventManager {
 
 	public delegate void GameEvent();
     public static event GameEvent GameStart, GameOver;
+    public static bool game = false;
     
     public delegate void ScoreEvent(long total, int value, Vector3 position);
     public static event ScoreEvent UpdatePoints;
@@ -15,18 +16,27 @@ public static class GameEventManager {
     public delegate void ItemEvent(string name);
     public static event ItemEvent StartItem;
     
-    public delegate void SceneEvent(Vector3 position);
-    public static event SceneEvent NewColumn;
+    public delegate void ColumnEvent(Vector3 position);
+    public static event ColumnEvent NewColumn;
+    
+    public delegate void SceneEvent();
+    public static event SceneEvent EndScene, NewScene;
+    public static bool scene = false;
+    public static bool firstScene = true;
     
     public static void TriggerGameStart(){
 		if(GameStart != null){
 			GameStart();
 		}
+        game = true;
+        firstScene = true;
+        UpdatePoints(0, 0, Vector3.one*-10);
 	}
 
 	public static void TriggerGameOver(){
 		if(GameOver != null){
 			GameOver();
+            game = false;
 		}
 	}
     
@@ -50,11 +60,19 @@ public static class GameEventManager {
         }
 	}
     
-    public static void AddNewScene(){
-        UnityAnalytics.CustomEvent("Scene Change", new Dictionary<string, object> {
+    public static void EndedScene(){
+        EndScene();
+        UnityAnalytics.CustomEvent("Scene End", new Dictionary<string, object> {
             { "points", points },
             //{ "distance", distance }
         } );
+        scene = false;
+	}
+    
+    public static void AddedNewScene(){
+        NewScene();
+        scene = true;
+        firstScene = false;
 	}
     
     public static void AddItem(string name){

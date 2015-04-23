@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using UnityStandardAssets.ImageEffects;
 
@@ -9,24 +10,34 @@ public class PlayerControl : MonoBehaviour {
     public float[] jumpSpeed = new float[3];
     int jumpCounter = 0;
     Rigidbody2D rb;
+    bool falling;
     
     public float itemTime;
     public GameObject multiplierGraphic;
     Multiplier multiplier;
     ScreenOverlay medal;
+    public GameObject sunglasses;
     public GameObject shirt;
-    SpriteRenderer shirtRenderer;
     public GameObject harness;
-    SpriteRenderer harnessRenderer;
+    public GameObject foodObject;
+    public RawImage flash;
+    CanvasRenderer flashRenderer;
+    public GameObject octopus;
     
 	// Use this for initialization
 	void Start() {
         rb = GetComponent<Rigidbody2D>();
         multiplier = multiplierGraphic.GetComponent<Multiplier>();
         medal = Camera.main.GetComponent<ScreenOverlay>();
-        shirtRenderer = shirt.GetComponent<SpriteRenderer>();
-        harnessRenderer = harness.GetComponent<SpriteRenderer>();
+        flashRenderer = flash.GetComponent<CanvasRenderer>();
+        flashRenderer.SetAlpha(0);
+        GameEventManager.NewScene += NewScene;
+        GameEventManager.GameOver += GameOver;
 	}
+    
+    void NewScene() {
+        falling = false;
+    }
     
     void FixedUpdate() {
         // Keep running
@@ -37,13 +48,18 @@ public class PlayerControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update() {
         // Jumping
-        if((Input.GetButtonDown("Jump") || Input.touchCount > 0) && jumpCounter < 3) {
+        if((Input.GetButtonDown("Jump") || Input.touchCount > 0) && jumpCounter < 3 && !falling) {
             rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
             jumpCounter++;
 		}
 	}
     
     void OnCollisionEnter2D(Collision2D collision) {
+        foreach(ContactPoint2D contact in collision.contacts) {
+            if(contact.normal.y == 0 && contact.normal.x == -1) {
+                falling = true;
+            }
+        }
         jumpCounter = 0;
     }
     
@@ -54,13 +70,18 @@ public class PlayerControl : MonoBehaviour {
         } else {
             GameEventManager.AddItem(thing.name);
             switch(thing.name) {
+                case "sunglasses":
+                    sunglasses.SetActive(true);
+                    CancelInvoke("DisableSunglasses");
+                    Invoke("DisableSunglasses", itemTime);
+                    break;
                 case "tie":
-                    shirtRenderer.enabled = true;
+                    shirt.SetActive(true);
                     CancelInvoke("DisableTie");
                     Invoke("DisableTie", itemTime);
                     break;
                 case "handcuffs":
-                    harnessRenderer.enabled = true;
+                    harness.SetActive(true);
                     CancelInvoke("DisableHandcuffs");
                     Invoke("DisableHandcuffs", itemTime);
                     break;
@@ -75,6 +96,23 @@ public class PlayerControl : MonoBehaviour {
                 case "heart":
                     multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "^2");
                     GameEventManager.MultiplyPoints(GameEventManager.points);
+                    break;
+                case "octopus":
+                    octopus.SetActive(true);
+                    CancelInvoke("DisableOctopus");
+                    Invoke("DisableOctopus", itemTime);
+                    break;
+                case "camera":
+                    flashRenderer.SetAlpha(1);
+                    flash.CrossFadeAlpha(0, 0.5f, false);
+                    Vector3 position;
+                    foreach (Transform food in foodObject.transform) {
+                        position = Camera.main.WorldToViewportPoint(food.position);
+                        if(position.x > 0 && position.x < 1 && position.y > 0 && position.y < 1) {
+                            GameEventManager.AddPoints(food.GetComponent<Food>().PointValue, food.transform.position);
+                            Object.Destroy(food.gameObject);
+                        }
+                    }
                     break;
                 case "medal":
                     medal.enabled = true;
@@ -92,12 +130,43 @@ public class PlayerControl : MonoBehaviour {
         medal.enabled = false;
     }
     
+    void DisableSunglasses() {
+        sunglasses.SetActive(false);
+    }
+    
     void DisableTie() {
-        shirtRenderer.enabled = false;
+        shirt.SetActive(false);
     }
     
     void DisableHandcuffs() {
-        harnessRenderer.enabled = false;
+        harness.SetActive(false);
     }
     
+    void DisableOctopus() {
+        octopus.SetActive(false);
+    }
+    
+    void DisableRifle() {
+    }
+    
+    void DisableSass() {
+    }
+    
+    void DisableBelt() {
+    }
+    
+    void Botox() {
+    }
+    
+    void GameOver() {
+        DisableMedal();
+        DisableSunglasses();
+        DisableTie();
+        DisableHandcuffs();
+        DisableOctopus();
+        DisableRifle();
+        DisableSass();
+        DisableBelt();
+        Botox();
+    }
 }

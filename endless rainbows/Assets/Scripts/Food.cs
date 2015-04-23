@@ -17,6 +17,7 @@ public class Food : MonoBehaviour {
 	void Start() {
         maxY = transform.position.y;
         minY = maxY - 0.01f;
+        rb.gravityScale = 0.5f;
 	}
 	
 	// Update is called once per frame

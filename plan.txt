@@ -68,14 +68,10 @@ Rotate back and forth
         camera: Smile for the media!
             camera flashes and putin grins even wider for a bit
             collects all food onscreen
-    movement DO THESE AFTER FIXING ALL PHYSICS
+    movement and screenspace
         can of sass: "You must obey the law, always, not only when they grab you by your special place."
             Putin is now in a sassy pose on his mount, speed lines up when jumping
-            first jump is higher
-        judo belt: "The gentle way"
-            outfit is now judo outfit, speed lines up with first and second jump
-            first and second jumps are higher
-    screenspace
+            jumps are higher
         olympic medal: Gold medal in tolerating the gays!
             rainbow screenspace filter
         botox: ~*¤{ p r e t t y }¤*~
