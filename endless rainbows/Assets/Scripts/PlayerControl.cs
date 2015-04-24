@@ -8,9 +8,14 @@ public class PlayerControl : MonoBehaviour {
     public float maximumSpeed;
     public float speed;
     public float[] jumpSpeed = new float[3];
+    public float[] normalJumpSpeed = new float[3];
+    public float[] sassyJumpSpeed = new float[3];
     int jumpCounter = 0;
     Rigidbody2D rb;
-    bool falling;
+    
+    public GameObject horse;
+    Animator animator;
+    public ParticleSystem glitter;
     
     public float itemTime;
     public GameObject multiplierGraphic;
@@ -23,21 +28,21 @@ public class PlayerControl : MonoBehaviour {
     public RawImage flash;
     CanvasRenderer flashRenderer;
     public GameObject octopus;
+    public RuntimeAnimatorController originalHorse;
+    public RuntimeAnimatorController unicorn;
     
 	// Use this for initialization
 	void Start() {
         rb = GetComponent<Rigidbody2D>();
+        animator = horse.GetComponent<Animator>();
         multiplier = multiplierGraphic.GetComponent<Multiplier>();
         medal = Camera.main.GetComponent<ScreenOverlay>();
         flashRenderer = flash.GetComponent<CanvasRenderer>();
         flashRenderer.SetAlpha(0);
-        GameEventManager.NewScene += NewScene;
+        jumpSpeed = normalJumpSpeed;
+        originalHorse = animator.runtimeAnimatorController;
         GameEventManager.GameOver += GameOver;
 	}
-    
-    void NewScene() {
-        falling = false;
-    }
     
     void FixedUpdate() {
         // Keep running
@@ -47,20 +52,32 @@ public class PlayerControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update() {
-        // Jumping
-        if((Input.GetButtonDown("Jump") || Input.touchCount > 0) && jumpCounter < 3 && !falling) {
-            rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
-            jumpCounter++;
-		}
-	}
-    
-    void OnCollisionEnter2D(Collision2D collision) {
-        foreach(ContactPoint2D contact in collision.contacts) {
-            if(contact.normal.y == 0 && contact.normal.x == -1) {
-                falling = true;
+        // Check if grounded
+        if(GameEventManager.scene) {
+            if (Physics2D.Raycast(transform.position, transform.TransformDirection(Vector3.down), 3f).collider != null && GameEventManager.scene) {
+                jumpCounter = 0;
+                animator.SetInteger("jump", jumpCounter);
+                animator.SetBool("grounded", true);
+            } else {
+                animator.SetBool("grounded", false);
+            }
+            // Jumping
+            if(Input.GetButtonDown("Jump")) {
+                if(jumpCounter < 3) {
+                    rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
+                    jumpCounter++;
+                    animator.SetInteger("jump", jumpCounter);
+                    if(jumpCounter == 3) {
+                        glitter.emissionRate = 150;
+                        Invoke("ResetGlitter", 1);
+                    }
+                }
             }
         }
-        jumpCounter = 0;
+	}
+    
+    void ResetGlitter() {
+        glitter.emissionRate = 15;
     }
     
     void OnTriggerExit2D(Collider2D collider) {
@@ -114,10 +131,18 @@ public class PlayerControl : MonoBehaviour {
                         }
                     }
                     break;
+                case "sass":
+                    jumpSpeed = sassyJumpSpeed;
+                    Invoke("DisableSass", itemTime);
+                    break;
                 case "medal":
                     medal.enabled = true;
                     CancelInvoke("DisableMedal");
                     Invoke("DisableMedal", itemTime);
+                    break;
+                case "botox":
+                    animator.runtimeAnimatorController = unicorn;
+                    Invoke("DisableBotox", itemTime);
                     break;
                 default:
                     break;
@@ -150,12 +175,14 @@ public class PlayerControl : MonoBehaviour {
     }
     
     void DisableSass() {
+        jumpSpeed = normalJumpSpeed;
     }
     
     void DisableBelt() {
     }
     
-    void Botox() {
+    void DisableBotox() {
+        animator.runtimeAnimatorController = originalHorse;
     }
     
     void GameOver() {
@@ -167,6 +194,6 @@ public class PlayerControl : MonoBehaviour {
         DisableRifle();
         DisableSass();
         DisableBelt();
-        Botox();
+        DisableBotox();
     }
 }

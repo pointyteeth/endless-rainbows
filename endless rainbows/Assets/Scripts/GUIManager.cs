@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-// HIDE CURSORZZZZ
+
 public class GUIManager : MonoBehaviour {
 
     public Canvas worldCanvas;
@@ -17,21 +17,29 @@ public class GUIManager : MonoBehaviour {
     public Text continueText;
     string control = "spacebar";
     public Image startScreen;
+    public Text introText;
+    public Text startText;
+    public ParticleSystem startGlitter;
+    public int quitCount;
+    int quitCounter;
     
     void Start() {
     
+        quitCounter = quitCount;
+    
         #if UNITY_WEBPLAYER || UNITY_EDITOR
-            control = "spacebar";
+            control = "SPACEBAR";
         #endif
     
         #if UNITY_STANDALONE
-            control = "press button";
+            control = "press BUTTON";
         #endif
         
         #if UNITY_ANDROID
-            control = "tap";
+            control = "TAP";
         #endif
         
+        startText.text = control + " to start";
         Cursor.visible = false;
         descriptions = new Dictionary<string, string[]> {
                 {"sunglasses", new[] {"sunglasses", "You can't spell \"badass\" without \"sunglasses\"."}},
@@ -53,17 +61,26 @@ public class GUIManager : MonoBehaviour {
         GameEventManager.StartItem += StartItem;
         GameEventManager.EndScene += EndScene;
         GameEventManager.NewScene += NewScene;
+        EnableStartScreen();
 	}
 
 	void Update() {
         if(Input.GetButtonDown("Jump")) {
             if(!GameEventManager.game){
                 GameEventManager.TriggerGameStart();
-                startScreen.enabled = false;
+                DisableStartScreen();
             }
             else if(!GameEventManager.scene && !GameEventManager.firstScene){
-                GameEventManager.TriggerGameOver();
-                startScreen.enabled = true;
+                if(quitCounter == 1) {
+                    GameEventManager.TriggerGameOver();
+                    EnableStartScreen();
+                } else {
+                    quitCounter--;
+                    continueText.text = control + " " + quitCounter + " times to quit";
+                    if(quitCounter == 1) {
+                        continueText.text = control + " " + quitCounter + " time to quit";
+                    }
+                }
             }
         }
         if(Input.GetKeyDown(KeyCode.Escape)) {
@@ -72,7 +89,7 @@ public class GUIManager : MonoBehaviour {
 	}
     
     void GameStart() {
-        startScreen.enabled = true;
+        EnableStartScreen();
         continueText.text = control + " to jump";
         continueText.enabled = true;
         itemTitle.enabled = false;
@@ -103,12 +120,29 @@ public class GUIManager : MonoBehaviour {
     }
     
     void EndScene() {
-        continueText.text = control + " to quit";
+        continueText.text = control + " 3 times to quit";
         continueText.enabled = true;
+        quitCounter = quitCount;
     }
     
     void NewScene() {
         continueText.enabled = false;
+    }
+    
+    void EnableStartScreen() {
+        startScreen.enabled = true;
+        introText.enabled = true;
+        startText.enabled = true;
+        startGlitter.Play();
+        Camera.main.cullingMask = 1 << LayerMask.NameToLayer("UI");
+    }
+    
+    void DisableStartScreen() {
+        startScreen.enabled = false;
+        introText.enabled = false;
+        startText.enabled = false;
+        startGlitter.Stop();
+        Camera.main.cullingMask = -1;
     }
     
 }

@@ -101,6 +101,9 @@ public class TileManager : MonoBehaviour {
             }}
         };
         
+        if(debugItems) {
+            itemChance = debuggingItemsChance;
+        }
 	}
 	
 	// Update is called once per frame
@@ -216,6 +219,8 @@ public class TileManager : MonoBehaviour {
     public float startFoodStringChance;
     public float continueFoodStringChance;
     public float itemChance;
+    public bool debugItems;
+    public float debuggingItemsChance;
     
     // Add a food to the foreground based on the previous food
     // Possibly add an item instead
