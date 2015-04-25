@@ -11,12 +11,14 @@ public class PlayerControl : MonoBehaviour {
     public float[] normalJumpSpeed = new float[3];
     public float[] sassyJumpSpeed = new float[3];
     int jumpCounter = 0;
+    bool grounded = false;
     Rigidbody2D rb;
     
     public GameObject horse;
     Animator animator;
     public ParticleSystem glitter;
     
+    public GameObject tiles;
     public float itemTime;
     public GameObject multiplierGraphic;
     Multiplier multiplier;
@@ -28,7 +30,9 @@ public class PlayerControl : MonoBehaviour {
     public RawImage flash;
     CanvasRenderer flashRenderer;
     public GameObject octopus;
-    public RuntimeAnimatorController originalHorse;
+    public GameObject rifle;
+    public GameObject sass;
+    RuntimeAnimatorController originalHorse;
     public RuntimeAnimatorController unicorn;
     
 	// Use this for initialization
@@ -54,22 +58,31 @@ public class PlayerControl : MonoBehaviour {
 	void Update() {
         // Check if grounded
         if(GameEventManager.scene) {
-            if (Physics2D.Raycast(transform.position, transform.TransformDirection(Vector3.down), 3f).collider != null && GameEventManager.scene) {
-                jumpCounter = 0;
-                animator.SetInteger("jump", jumpCounter);
-                animator.SetBool("grounded", true);
-            } else {
-                animator.SetBool("grounded", false);
+            if(GameEventManager.scene) {
+                if (Physics2D.Raycast(transform.position, transform.TransformDirection(Vector3.down), 0.75f).collider != null) {
+                    jumpCounter = 0;
+                    animator.SetBool("grounded", true);
+                } else if(Physics2D.Raycast(transform.position, transform.TransformDirection(Vector3.down), 3f).collider != null) {
+                    if(!grounded) {
+                        grounded = true;
+                        animator.SetTrigger("land");
+                    }
+                } else if(grounded) {
+                    grounded = false;
+                    animator.SetBool("grounded", false);
+                }
             }
             // Jumping
             if(Input.GetButtonDown("Jump")) {
                 if(jumpCounter < 3) {
                     rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
                     jumpCounter++;
-                    animator.SetInteger("jump", jumpCounter);
                     if(jumpCounter == 3) {
+                        animator.SetTrigger("flip");
                         glitter.emissionRate = 150;
                         Invoke("ResetGlitter", 1);
+                    } else {
+                        animator.SetTrigger("jump");
                     }
                 }
             }
@@ -82,73 +95,81 @@ public class PlayerControl : MonoBehaviour {
     
     void OnTriggerExit2D(Collider2D collider) {
         GameObject thing = collider.gameObject;
-        if(thing.GetComponent<Food>() != null) {
-            GameEventManager.AddPoints(thing.GetComponent<Food>().PointValue, thing.transform.position);
-        } else {
-            GameEventManager.AddItem(thing.name);
-            switch(thing.name) {
-                case "sunglasses":
-                    sunglasses.SetActive(true);
-                    CancelInvoke("DisableSunglasses");
-                    Invoke("DisableSunglasses", itemTime);
-                    break;
-                case "tie":
-                    shirt.SetActive(true);
-                    CancelInvoke("DisableTie");
-                    Invoke("DisableTie", itemTime);
-                    break;
-                case "handcuffs":
-                    harness.SetActive(true);
-                    CancelInvoke("DisableHandcuffs");
-                    Invoke("DisableHandcuffs", itemTime);
-                    break;
-                case "dog":
-                    GameEventManager.MultiplyPoints(2);
-                    multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "x2");
-                    break;
-                case "badge":
-                    multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "x3");
-                    GameEventManager.MultiplyPoints(3);
-                    break;
-                case "heart":
-                    multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "^2");
-                    GameEventManager.MultiplyPoints(GameEventManager.points);
-                    break;
-                case "octopus":
-                    octopus.SetActive(true);
-                    CancelInvoke("DisableOctopus");
-                    Invoke("DisableOctopus", itemTime);
-                    break;
-                case "camera":
-                    flashRenderer.SetAlpha(1);
-                    flash.CrossFadeAlpha(0, 0.5f, false);
-                    Vector3 position;
-                    foreach (Transform food in foodObject.transform) {
-                        position = Camera.main.WorldToViewportPoint(food.position);
-                        if(position.x > 0 && position.x < 1 && position.y > 0 && position.y < 1) {
-                            GameEventManager.AddPoints(food.GetComponent<Food>().PointValue, food.transform.position);
-                            Object.Destroy(food.gameObject);
+        if(thing.transform.parent.gameObject != tiles) {
+            if(thing.GetComponent<Food>() != null) {
+                GameEventManager.AddPoints(thing.GetComponent<Food>().PointValue, thing.transform.position);
+            } else {
+                GameEventManager.AddItem(thing.name);
+                switch(thing.name) {
+                    case "sunglasses":
+                        sunglasses.SetActive(true);
+                        CancelInvoke("DisableSunglasses");
+                        Invoke("DisableSunglasses", itemTime);
+                        break;
+                    case "tie":
+                        shirt.SetActive(true);
+                        CancelInvoke("DisableTie");
+                        Invoke("DisableTie", itemTime);
+                        break;
+                    case "handcuffs":
+                        harness.SetActive(true);
+                        CancelInvoke("DisableHandcuffs");
+                        Invoke("DisableHandcuffs", itemTime);
+                        break;
+                    case "dog":
+                        GameEventManager.MultiplyPoints(2);
+                        multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "x2");
+                        break;
+                    case "badge":
+                        multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "x3");
+                        GameEventManager.MultiplyPoints(3);
+                        break;
+                    case "heart":
+                        multiplier.Show(thing.GetComponent<SpriteRenderer>().sprite, "^2");
+                        GameEventManager.MultiplyPoints(GameEventManager.points);
+                        break;
+                    case "octopus":
+                        octopus.SetActive(true);
+                        CancelInvoke("DisableOctopus");
+                        Invoke("DisableOctopus", itemTime);
+                        break;
+                    case "rifle":
+                        rifle.SetActive(true);
+                        CancelInvoke("DisableRifle");
+                        Invoke("DisableRifle", itemTime);
+                        break;
+                    case "camera":
+                        flashRenderer.SetAlpha(1);
+                        flash.CrossFadeAlpha(0, 0.5f, false);
+                        Vector3 position;
+                        foreach (Transform food in foodObject.transform) {
+                            position = Camera.main.WorldToViewportPoint(food.position);
+                            if(position.x > 0 && position.x < 1 && position.y > 0 && position.y < 1) {
+                                GameEventManager.AddPoints(food.GetComponent<Food>().PointValue, food.transform.position);
+                                Object.Destroy(food.gameObject);
+                            }
                         }
-                    }
-                    break;
-                case "sass":
-                    jumpSpeed = sassyJumpSpeed;
-                    Invoke("DisableSass", itemTime);
-                    break;
-                case "medal":
-                    medal.enabled = true;
-                    CancelInvoke("DisableMedal");
-                    Invoke("DisableMedal", itemTime);
-                    break;
-                case "botox":
-                    animator.runtimeAnimatorController = unicorn;
-                    Invoke("DisableBotox", itemTime);
-                    break;
-                default:
-                    break;
+                        break;
+                    case "sass":
+                        jumpSpeed = sassyJumpSpeed;
+                        sass.SetActive(true);
+                        Invoke("DisableSass", itemTime);
+                        break;
+                    case "medal":
+                        medal.enabled = true;
+                        CancelInvoke("DisableMedal");
+                        Invoke("DisableMedal", itemTime);
+                        break;
+                    case "botox":
+                        animator.runtimeAnimatorController = unicorn;
+                        Invoke("DisableBotox", itemTime);
+                        break;
+                    default:
+                        break;
+                }
             }
+            Object.Destroy(thing);
         }
-        Object.Destroy(thing);
     }
     
     void DisableMedal() {
@@ -172,10 +193,12 @@ public class PlayerControl : MonoBehaviour {
     }
     
     void DisableRifle() {
+        rifle.SetActive(false);
     }
     
     void DisableSass() {
         jumpSpeed = normalJumpSpeed;
+        sass.SetActive(false);
     }
     
     void DisableBelt() {

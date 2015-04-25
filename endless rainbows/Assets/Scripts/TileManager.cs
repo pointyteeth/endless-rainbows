@@ -104,6 +104,8 @@ public class TileManager : MonoBehaviour {
         if(debugItems) {
             itemChance = debuggingItemsChance;
         }
+        
+        GameEventManager.GameStart += GameStart;
 	}
 	
 	// Update is called once per frame
@@ -133,6 +135,13 @@ public class TileManager : MonoBehaviour {
         if(GameEventManager.game) {
             GameEventManager.AddedNewScene();
         }
+        if(maxGap < 3) {
+            maxGap++;
+        }
+    }
+    
+    void GameStart() {
+        maxGap = 0;
     }
     
     // Generate a new column of tiles, starting with the given sprite
@@ -235,6 +244,7 @@ public class TileManager : MonoBehaviour {
             BoxCollider2D collider = item.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
             item.AddComponent<Item>();
+            item.layer = LayerMask.NameToLayer("Ignore Raycast");
             
             Sprite sprite;
             if(Random.value > itemChance) { // place food
@@ -246,7 +256,7 @@ public class TileManager : MonoBehaviour {
                 foodScript.rb = rigidbody;
                 item.transform.parent = foodObject.transform;
             } else { // place item
-                sprite = items[Random.Range(0, items.Length)];
+                sprite = items[Random.Range(0, maxGap*4)];
                 item.transform.parent = itemsObject.transform;
             }
             item.name = CleanSpriteName(sprite.ToString());

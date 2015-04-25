@@ -52,7 +52,6 @@ public class GUIManager : MonoBehaviour {
                 {"octopus", new[] {"octopus", "Octopi Ukraine!"}},
                 {"rifle", new[] {"rifle", "Time to hunt for cute photo ops."}},
                 {"sass", new[] {"can of sass", "You must obey the law, always, not only when they grab you by your special place."}},
-                {"belt", new[] {"judo belt", "The gentle way."}},
                 {"medal", new[] {"olympic medal", "Gold medal in tolerating the gays!"}},
                 {"botox", new[] {"botox", "~*¤{ p r e t t y }¤*~"}}
             };

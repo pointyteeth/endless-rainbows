@@ -10,7 +10,7 @@ public class Item : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update() {
-        if(Camera.main.WorldToViewportPoint(this.transform.position).x < -0.2 || Camera.main.WorldToViewportPoint(this.transform.position).y > 2) {
+        if(Camera.main.WorldToViewportPoint(this.transform.position).x < -0.2 || Camera.main.WorldToViewportPoint(this.transform.position).y > 2.5) {
             Object.Destroy(gameObject);
         }
 	}
