@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -22,6 +23,8 @@ public class GUIManager : MonoBehaviour {
     public ParticleSystem startGlitter;
     public int quitCount;
     int quitCounter;
+    DateTime resetTimer = DateTime.Now;
+    DateTime aliveTimer = DateTime.Now;
     
     void Start() {
     
@@ -56,6 +59,7 @@ public class GUIManager : MonoBehaviour {
                 {"botox", new[] {"botox", "~*¤{ p r e t t y }¤*~"}}
             };
         GameEventManager.GameStart += GameStart;
+        GameEventManager.GameOver += GameOver;
         GameEventManager.UpdatePoints += UpdatePoints;
         GameEventManager.StartItem += StartItem;
         GameEventManager.EndScene += EndScene;
@@ -65,14 +69,13 @@ public class GUIManager : MonoBehaviour {
 
 	void Update() {
         if(Input.GetButtonDown("Jump")) {
+            resetTimer = DateTime.Now;
             if(!GameEventManager.game){
                 GameEventManager.TriggerGameStart();
-                DisableStartScreen();
             }
             else if(!GameEventManager.scene && !GameEventManager.firstScene){
                 if(quitCounter == 1) {
                     GameEventManager.TriggerGameOver();
-                    EnableStartScreen();
                 } else {
                     quitCounter--;
                     continueText.text = control + " " + quitCounter + " times to quit";
@@ -85,14 +88,26 @@ public class GUIManager : MonoBehaviour {
         if(Input.GetKeyDown(KeyCode.Escape)) {
             Application.Quit();
         }
+        if((DateTime.Now - aliveTimer).Minutes >= 30) {
+            aliveTimer = DateTime.Now;
+            Debug.Log("Alive");
+        }
+        if(GameEventManager.game && (DateTime.Now - resetTimer).Minutes >= 1) {
+            resetTimer = DateTime.Now;
+            GameEventManager.TriggerGameOver();
+        }
 	}
     
     void GameStart() {
-        EnableStartScreen();
+        DisableStartScreen();
         continueText.text = control + " to jump";
         continueText.enabled = true;
         itemTitle.enabled = false;
         itemDescription.enabled = false;
+    }
+    
+    void GameOver() {
+        EnableStartScreen();
     }
     
     void UpdatePoints(long total, int points, Vector3 position) {

@@ -35,6 +35,7 @@ public static class GameEventManager {
 
 	public static void TriggerGameOver(){
 		if(GameOver != null){
+            EndScene();
 			GameOver();
             game = false;
 		}

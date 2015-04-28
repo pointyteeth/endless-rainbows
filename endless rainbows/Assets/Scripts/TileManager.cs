@@ -183,6 +183,7 @@ public class TileManager : MonoBehaviour {
         tile.transform.position = position;
         SpriteRenderer renderer = tile.AddComponent<SpriteRenderer>();
         renderer.sprite = sprite;
+        renderer.sortingOrder = -4;
         if(tile.name != "blank") {
             tile.AddComponent<BoxCollider2D>();
             //tile.AddComponent<PolygonCollider2D>();
@@ -262,6 +263,7 @@ public class TileManager : MonoBehaviour {
             item.name = CleanSpriteName(sprite.ToString());
             SpriteRenderer renderer = item.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
+            renderer.sortingOrder = -2;
             
         } else {
             wasFood = false;
