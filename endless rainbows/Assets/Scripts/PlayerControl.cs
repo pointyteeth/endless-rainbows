@@ -48,12 +48,18 @@ public class PlayerControl : MonoBehaviour {
         GameEventManager.GameOver += GameOver;
 	}
     
+    void OnDestroy() {
+        GameEventManager.GameOver -= GameOver;
+    }
+    
     void FixedUpdate() {
         // Keep running
         rb.AddForce(Vector3.right*speed);
         rb.velocity = Vector3.ClampMagnitude(GetComponent<Rigidbody2D>().velocity, maximumSpeed);
     }
 	
+    bool wasLifted = true;
+    
 	// Update is called once per frame
 	void Update() {
         // Check if grounded
@@ -73,7 +79,11 @@ public class PlayerControl : MonoBehaviour {
                 }
             }
             // Jumping
-            if(Input.GetButtonDown("Jump")) {
+            //if(Input.GetButtonDown("Jump")) {
+            if(Input.GetMouseButtonUp(0)) {
+                wasLifted = true;
+            } else if(Input.GetMouseButtonDown(0) && wasLifted) {
+                wasLifted = false;
                 if(jumpCounter < 3) {
                     rb.AddForce(Vector3.up*jumpSpeed[jumpCounter]);
                     jumpCounter++;

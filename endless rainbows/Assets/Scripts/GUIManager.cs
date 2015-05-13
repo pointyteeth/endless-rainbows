@@ -30,13 +30,13 @@ public class GUIManager : MonoBehaviour {
     
         quitCounter = quitCount;
     
-        #if UNITY_WEBPLAYER || UNITY_EDITOR
+        #if UNITY_WEBPLAYER || UNITY_EDITOR || UNITY_STANDALONE
             control = "SPACEBAR";
         #endif
     
-        #if UNITY_STANDALONE
-            control = "press BUTTON";
-        #endif
+        //#if UNITY_STANDALONE
+        //    control = "press BUTTON";
+        //#endif
         
         #if UNITY_ANDROID
             control = "TAP";
@@ -66,9 +66,24 @@ public class GUIManager : MonoBehaviour {
         GameEventManager.NewScene += NewScene;
         EnableStartScreen();
 	}
+    
+    void OnDestroy() {
+        GameEventManager.GameStart -= GameStart;
+        GameEventManager.GameOver -= GameOver;
+        GameEventManager.UpdatePoints -= UpdatePoints;
+        GameEventManager.StartItem -= StartItem;
+        GameEventManager.EndScene -= EndScene;
+        GameEventManager.NewScene -= NewScene;
+    }
 
+    bool wasLifted = true;
+    
 	void Update() {
-        if(Input.GetButtonDown("Jump")) {
+        //if(Input.GetButtonDown("Jump")) {
+        if(Input.GetMouseButtonUp(0)) {
+            wasLifted = true;
+        } else if(Input.GetMouseButtonDown(0) && wasLifted) {
+            wasLifted = false;
             resetTimer = DateTime.Now;
             if(!GameEventManager.game){
                 GameEventManager.TriggerGameStart();
@@ -107,6 +122,7 @@ public class GUIManager : MonoBehaviour {
     }
     
     void GameOver() {
+        Application.LoadLevel(Application.loadedLevel);
         EnableStartScreen();
     }
     

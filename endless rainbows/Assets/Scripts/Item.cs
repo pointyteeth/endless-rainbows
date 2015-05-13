@@ -7,6 +7,10 @@ public class Item : MonoBehaviour {
 	void Start() {
         GameEventManager.GameOver += GameOver;
 	}
+    
+    void OnDestroy() {
+        GameEventManager.GameOver -= GameOver;
+	}
 	
 	// Update is called once per frame
 	void Update() {
@@ -14,9 +18,6 @@ public class Item : MonoBehaviour {
             Object.Destroy(gameObject);
         }
 	}
-    
-    void OnDestroy() {
-    }
     
     void GameOver() {
         if(this != null) {

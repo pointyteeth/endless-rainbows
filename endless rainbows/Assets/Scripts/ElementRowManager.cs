@@ -23,6 +23,10 @@ public class ElementRowManager : MonoBehaviour {
 	void Start() {
         GameEventManager.NewColumn += NewColumn;
 	}
+    
+    void OnDestroy() {
+        GameEventManager.NewColumn -= NewColumn;
+    }
 	
 	// Update is called once per frame
 	void Update() {

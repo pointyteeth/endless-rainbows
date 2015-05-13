@@ -107,6 +107,10 @@ public class TileManager : MonoBehaviour {
         
         GameEventManager.GameStart += GameStart;
 	}
+    
+    void OnDestroy() {
+        GameEventManager.GameStart -= GameStart;
+    }
 	
 	// Update is called once per frame
 	void Update() {
