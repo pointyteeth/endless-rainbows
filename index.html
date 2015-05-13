@@ -24,6 +24,20 @@
             });
         </script>
 		<style type="text/css">
+            @media only screen and (min-device-width: 480px) {
+                ::-webkit-scrollbar {
+                    width: 16px;
+                }
+                ::-webkit-scrollbar-track {
+                    border: 1px solid rgba(12, 121, 0, 1);
+                }
+                ::-webkit-scrollbar-thumb {
+                    border: 1px solid rgba(12, 121, 0, 1);
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background-color: rgba(12, 121, 0, 0.3);
+                }
+            }
             @font-face {
                 font-family: kubasta;
                 src: url(kubasta.ttf);
@@ -93,18 +107,6 @@
             }
             .gallery > a {
                 border: none;
-            }
-            ::-webkit-scrollbar {
-                width: 16px;
-            }
-            ::-webkit-scrollbar-track {
-                border: 1px solid rgba(12, 121, 0, 1);
-            }
-            ::-webkit-scrollbar-thumb {
-                border: 1px solid rgba(12, 121, 0, 1);
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background-color: rgba(12, 121, 0, 0.3);
             }
 		</style>
 	</head>
